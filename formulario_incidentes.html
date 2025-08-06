@@ -125,7 +125,7 @@
 
 <script>
 // Número fijo por defecto
-const numeroWhatsAppDefecto = "56912345678"; // <-- CAMBIA AQUÍ TU NÚMERO (sin + ni 0 inicial)
+const numeroWhatsAppDefecto = ""; // sin número por defecto
 
 function obtenerDatosFormulario() {
     return {
@@ -152,7 +152,7 @@ function enviarWhatsApp() {
         `Ubicación: ${datos.ubicacion}%0A` +
         `Código: ${datos.codigo}%0A` +
         `Descripción: ${datos.descripcion}`;
-    const url = `https://wa.me/${datos.numeroDestino}?text=${mensaje}`;
+    const url = `https://wa.me/?text=${mensaje}`;
     window.open(url, '_blank');
 }
 
@@ -205,3 +205,4 @@ function generarExcel() {
 
 </body>
 </html>
+
