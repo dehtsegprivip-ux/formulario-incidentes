@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grupo Centinela - Formulario de Incidentes</title>
+
+<!-- Librerías para PDF y Excel -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f6f8;
+        margin: 0;
+        padding: 0;
+    }
+    .container {
+        max-width: 700px;
+        margin: 30px auto;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        border-radius: 10px;
+        padding: 20px 30px;
+    }
+    h2 {
+        text-align: center;
+        color: #1e2a38;
+    }
+    label {
+        font-weight: bold;
+        display: block;
+        margin-top: 10px;
+    }
+    select, input, textarea {
+        width: 100%;
+        padding: 8px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 15px;
+    }
+    button {
+        flex: 1;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        color: white;
+        font-weight: bold;
+    }
+    .whatsapp { background: #25D366; }
+    .email { background: #007BFF; }
+    .pdf { background: #d9534f; }
+    .excel { background: #28a745; }
+    .limpiar { background: #6c757d; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Grupo Centinela - Formulario de Incidentes</h2>
+
+    <form id="incidenteForm">
+        <label for="division">División de trabajo:</label>
+        <select id="division" required>
+            <option value="">Seleccione...</option>
+            <option value="Código 404">Código 404</option>
+            <option value="Cóndor Digital">Cóndor Digital</option>
+        </select>
+
+        <label for="nombre">Nombre de Funcionario:</label>
+        <input type="text" id="nombre" required>
+
+        <label for="cargo">Cargo:</label>
+        <input type="text" id="cargo" required>
+
+        <label for="fecha">Fecha del Incidente:</label>
+        <input type="date" id="fecha" required>
+
+        <label for="hora">Hora del Incidente:</label>
+        <input type="time" id="hora" required>
+
+        <label for="ubicacion">Ubicación del Incidente:</label>
+        <input type="text" id="ubicacion" required>
+
+        <label for="codigo">Código del Incidente:</label>
+        <select id="codigo" required>
+            <option value="">Seleccione...</option>
+            <option value="Código Negro: Muy Grave">Código Negro: Muy Grave</option>
+            <option value="Código Rojo: Grave">Código Rojo: Grave</option>
+            <option value="Código Gris: Caída de Sistemas">Código Gris: Caída de Sistemas</option>
+            <option value="Código Amarillo: Incidente con Equipo">Código Amarillo: Incidente con Equipo</option>
+            <option value="Código Azul: Accidente Externo">Código Azul: Accidente Externo</option>
+            <option value="Código Centinela: Accidente de Trabajador">Código Centinela: Accidente de Trabajador</option>
+            <option value="Código Verde: Sin Novedades">Código Verde: Sin Novedades</option>
+        </select>
+
+        <label for="descripcion">Descripción del Incidente:</label>
+        <textarea id="descripcion" required></textarea>
+
+        <label for="numeroWhatsApp">Número de WhatsApp del destinatario (opcional):</label>
+        <input type="text" id="numeroWhatsApp" placeholder="Ejemplo: 56998765432">
+
+        <!-- Botones -->
+        <div class="buttons">
+            <button type="button" class="whatsapp" onclick="enviarWhatsApp()">Enviar WhatsApp</button>
+            <button type="button" class="email" onclick="enviarEmail()">Enviar Email</button>
+            <button type="button" class="pdf" onclick="generarPDF()">Generar PDF</button>
+            <button type="button" class="excel" onclick="generarExcel()">Generar Excel</button>
+            <button type="reset" class="limpiar">Limpiar Formulario</button>
+        </div>
+    </form>
+</div>
+
+<script>
+// Número fijo por defecto
+const numeroWhatsAppDefecto = "56912345678"; // <-- CAMBIA AQUÍ TU NÚMERO (sin + ni 0 inicial)
+
+function obtenerDatosFormulario() {
+    return {
+        division: document.getElementById("division").value,
+        nombre: document.getElementById("nombre").value,
+        cargo: document.getElementById("cargo").value,
+        fecha: document.getElementById("fecha").value,
+        hora: document.getElementById("hora").value,
+        ubicacion: document.getElementById("ubicacion").value,
+        codigo: document.getElementById("codigo").value,
+        descripcion: document.getElementById("descripcion").value,
+        numeroDestino: document.getElementById("numeroWhatsApp").value.trim() || numeroWhatsAppDefecto
+    };
+}
+
+function enviarWhatsApp() {
+    const datos = obtenerDatosFormulario();
+    const mensaje = `*Reporte de Incidente*%0A` +
+        `División: ${datos.division}%0A` +
+        `Nombre: ${datos.nombre}%0A` +
+        `Cargo: ${datos.cargo}%0A` +
+        `Fecha: ${datos.fecha}%0A` +
+        `Hora: ${datos.hora}%0A` +
+        `Ubicación: ${datos.ubicacion}%0A` +
+        `Código: ${datos.codigo}%0A` +
+        `Descripción: ${datos.descripcion}`;
+    const url = `https://wa.me/${datos.numeroDestino}?text=${mensaje}`;
+    window.open(url, '_blank');
+}
+
+function enviarEmail() {
+    const datos = obtenerDatosFormulario();
+    const asunto = encodeURIComponent("Reporte de Incidente");
+    const cuerpo = encodeURIComponent(
+        `Reporte de Incidente\n` +
+        `División: ${datos.division}\n` +
+        `Nombre: ${datos.nombre}\n` +
+        `Cargo: ${datos.cargo}\n` +
+        `Fecha: ${datos.fecha}\n` +
+        `Hora: ${datos.hora}\n` +
+        `Ubicación: ${datos.ubicacion}\n` +
+        `Código: ${datos.codigo}\n` +
+        `Descripción: ${datos.descripcion}`
+    );
+    window.location.href = `mailto:?subject=${asunto}&body=${cuerpo}`;
+}
+
+async function generarPDF() {
+    const { jsPDF } = window.jspdf;
+    const datos = obtenerDatosFormulario();
+    const doc = new jsPDF();
+
+    doc.setFontSize(18);
+    doc.text("Grupo Centinela - Reporte de Incidente", 20, 20);
+
+    doc.setFontSize(12);
+    let y = 40;
+    for (let [clave, valor] of Object.entries(datos)) {
+        if (clave !== "numeroDestino") { // no incluimos el número de WhatsApp en el PDF
+            doc.text(`${clave}: ${valor}`, 20, y);
+            y += 8;
+        }
+    }
+
+    doc.save(`Reporte_Incidente_${datos.fecha}.pdf`);
+}
+
+function generarExcel() {
+    const datos = obtenerDatosFormulario();
+    delete datos.numeroDestino; // no incluimos en Excel el número de WhatsApp
+    const hoja = XLSX.utils.json_to_sheet([datos]);
+    const libro = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(libro, hoja, "Incidente");
+    XLSX.writeFile(libro, `Reporte_Incidente_${datos.fecha}.xlsx`);
+}
+</script>
+
+</body>
+</html>
