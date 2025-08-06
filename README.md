@@ -109,9 +109,6 @@
         <label for="descripcion">Descripción del Incidente:</label>
         <textarea id="descripcion" required></textarea>
 
-        <label for="numeroWhatsApp">Número de WhatsApp del destinatario (opcional):</label>
-        <input type="text" id="numeroWhatsApp" placeholder="Ejemplo: 56998765432">
-
         <!-- Botones -->
         <div class="buttons">
             <button type="button" class="whatsapp" onclick="enviarWhatsApp()">Enviar WhatsApp</button>
@@ -138,7 +135,7 @@ function obtenerDatosFormulario() {
         ubicacion: document.getElementById("ubicacion").value,
         codigo: document.getElementById("codigo").value,
         descripcion: document.getElementById("descripcion").value,
-        numeroDestino: document.getElementById("numeroWhatsApp").value.trim() || numeroWhatsAppDefecto
+        numeroDestino: document.getElementById("numeroWhatsApp").value.trim() ||
     };
 }
 
