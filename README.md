@@ -1,5 +1,3 @@
-# formulario-incidentes
-Formulario para reportar incidentes
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -126,8 +124,9 @@ Formulario para reportar incidentes
 </div>
 
 <script>
-// Número fijo por defecto
-const numeroWhatsAppDefecto = "56912345678"; // <-- CAMBIA AQUÍ TU NÚMERO (sin + ni 0 inicial)
+// sin Número fijo por defecto
+const numeroWhatsAppDefecto = ""; // Sin número por defecto
+const urlGoogleScript = "AQUI_PEGA_TU_URL_DEL_SCRIPT"; // <-- https://docs.google.com/spreadsheets/d/1jcZtl_LwRgv8ur4tVNuGLTyER5ljXqI2pEvJQ0bygRU/edit?usp=sharing
 
 function obtenerDatosFormulario() {
     return {
@@ -143,8 +142,23 @@ function obtenerDatosFormulario() {
     };
 }
 
+// Guardar en Google Sheets
+function guardarEnGoogleSheets(datos) {
+    fetch(urlGoogleScript, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+    }).then(() => {
+        console.log("Reporte guardado en Google Sheets");
+    }).catch(err => {
+        console.error("Error al guardar en Google Sheets", err);
+    });
+}
+
 function enviarWhatsApp() {
     const datos = obtenerDatosFormulario();
+    guardarEnGoogleSheets(datos);
     const mensaje = `*Reporte de Incidente*%0A` +
         `División: ${datos.division}%0A` +
         `Nombre: ${datos.nombre}%0A` +
@@ -154,12 +168,13 @@ function enviarWhatsApp() {
         `Ubicación: ${datos.ubicacion}%0A` +
         `Código: ${datos.codigo}%0A` +
         `Descripción: ${datos.descripcion}`;
-    const url = `https://wa.me/${datos.numeroDestino}?text=${mensaje}`;
+    const url = `https://wa.me/?text=${mensaje}`;
     window.open(url, '_blank');
 }
 
 function enviarEmail() {
     const datos = obtenerDatosFormulario();
+    guardarEnGoogleSheets(datos);
     const asunto = encodeURIComponent("Reporte de Incidente");
     const cuerpo = encodeURIComponent(
         `Reporte de Incidente\n` +
@@ -178,26 +193,27 @@ function enviarEmail() {
 async function generarPDF() {
     const { jsPDF } = window.jspdf;
     const datos = obtenerDatosFormulario();
-    const doc = new jsPDF();
+    guardarEnGoogleSheets(datos);
 
+    const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text("Grupo Centinela - Reporte de Incidente", 20, 20);
 
     doc.setFontSize(12);
     let y = 40;
     for (let [clave, valor] of Object.entries(datos)) {
-        if (clave !== "numeroDestino") { // no incluimos el número de WhatsApp en el PDF
+        if (clave !== "numeroDestino") {
             doc.text(`${clave}: ${valor}`, 20, y);
             y += 8;
         }
     }
-
     doc.save(`Reporte_Incidente_${datos.fecha}.pdf`);
 }
 
 function generarExcel() {
     const datos = obtenerDatosFormulario();
-    delete datos.numeroDestino; // no incluimos en Excel el número de WhatsApp
+    guardarEnGoogleSheets(datos);
+    delete datos.numeroDestino;
     const hoja = XLSX.utils.json_to_sheet([datos]);
     const libro = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(libro, hoja, "Incidente");
